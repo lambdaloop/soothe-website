@@ -61,7 +61,7 @@ window.onload = function () {
     chart.render();
     updateLineChart();
 
-    var rtPoint = [ { x: 10, y: 20.0, label: "Tension", color: "Black"} ];
+    var rtPoint = [ { x: 10, y: null, label: "Tension", color: "Black"} ];
 
     var rtChart = new CanvasJS.Chart(
         "biofeedbackContainer",
@@ -93,28 +93,26 @@ window.onload = function () {
         3: 'Black'
     };
     
-    function updateRTChart() {
-        $.get(SERVER_ADDRESS + '/getLatestSM')
-            .done(function(data) {
-                var tdiff = data['timediff'];
-                var value = data['value'];
-                var type = data['tag'];
+};
 
-                if(tdiff > 2000) {
-                    value = null;
-                }
+function updateRTChart(data) {
+    var tdiff = data['timediff'];
+    var value = data['value'];
+    var type = data['tag'];
 
-                // console.log(value);
-                
-                rtPoint[0]['y'] = value;
-                rtPoint[0]['color'] = typeColors[type];
-                
-                rtChart.render();
-
-            });
-
-        setTimeout(updateRTChart, 500);
+    if(tdiff > 2000) {
+        value = null;
     }
 
-    updateRTChart();
-};
+    // console.log(value);
+    
+    rtPoint[0]['y'] = value;
+    rtPoint[0]['color'] = typeColors[type];
+    
+    rtChart.render();
+
+}
+
+var socket = io(SERVER_ADDRESS);
+
+socket.on('feedback', updateRTChart);
